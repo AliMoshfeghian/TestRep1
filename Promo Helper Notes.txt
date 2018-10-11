@@ -1,0 +1,39 @@
+integer NumStylist = Integer.valueOf(SOAccount.xl_Total_Active_Stylists__c);
+
+/*
+*	Author: Strategic Growth, Jeff Althaus
+* 	Objective - Process Promotion Codes for a Temp Sales Order
+*	Inputs
+* 		Temp Sales Order ID
+* 		Set of Promotion Codes (entered by User)
+*/ 
+// Update 8-1-2017 Ali Moshfeghian: added functionality to read xl_Additional_Discount_Relationship__c from
+// 		Promo_Rule_Prize__c and based on its value, adjust the amount of the promo to be Add ot Best
+// Update 8-24-2017 Ali Moshfeghian:added functionality to award Bogo based on number of stylist
+// Update 9-11-2017 Ali Moshfeghian:fixed the Bogo bug that it was not checking elligibility
+// Update 12-18-2017 - BN removed Product__ c and xl_Training_Program_Cart_Name__ c and xl_Customer__ c from TSOL queries for deprecating   
+// Update 01-16-2017 to check for PriceAdj2 field on teh SOL when applying percent off sales order lines. Dynamic discounts and 100% off was
+// 		causing negative unit price
+// Update 01-18-2017 Ali Moshfeghian: Add functionality for % off the Eligible items in order to check for max per account and per stylist  
+
+
+                            integer NumStylist = Integer.valueOf(SOAccount.xl_Total_Active_Stylists__c);
+                            decimal StylistTierDec = SO.xl_Order_Subtotal__c/localPRP.Tier_1_Min_Subtotal__c;
+                            integer StylistTierInt = Integer.valueOf(StylistTierDec.round(roundingMode.DOWN));
+                            decimal StylistTotalQty;
+                           if (StylistTierInt != null && NumStylist != null) StylistTotalQty = localPRP.Item_Qty_to_Receive_Min_1__c * math.min(StylistTierInt, NumStylist);
+                           if(StylistTotalQty > 0)
+						   
+	//Get Ready to Loop through SOLs, Check to see if there is a qty restriction specified
+if(prp.Rule_Type__c=='Percent' && prp.Rule_Sub_Type__c=='% off the eligible items in order' &&
+   (prp.xl_Max_Qty_Acct__c != null && prp.xl_Max_Qty_Acct__c > 0)  || 
+   prp.xl_Max_Qty_Stylist__c != null && prp.xl_Max_Qty_Stylist__c != null){
+	   Boolean ApplyQtyRestriction = True;
+	   Integer MaxAcct = 9999;
+	   If (prp.xl_Max_Qty_Acct__c != null && prp.xl_Max_Qty_Acct__c > 0) MaxAcct = integer.valueof(prp.xl_Max_Qty_Acct__c);
+	   Integer MaxStylist = 9999;
+	   If (prp.xl_Max_Qty_Stylist__c != null && prp.xl_Max_Qty_Stylist__c > 0) MaxStylist = integer.valueof(prp.xl_Max_Qty_Stylist__c);
+	   integer NumStylist = Integer.valueOf(SOAccount.xl_Total_Active_Stylists__c);
+	   Integer QtyRstTotal = math.min(MaxAcct,NumStylist*MaxStylist);
+	   Integer QtyRstLeft = QtyRstTotal;
+   }
